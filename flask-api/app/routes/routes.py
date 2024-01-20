@@ -1,8 +1,9 @@
 from app import app
-from ..views import users
+from ..views import users, helper
 from flask import jsonify
 
 @app.route('/', methods=['GET'])
+@helper.token_required
 def root():
     return jsonify({
         'message': 'GET Success'
@@ -27,3 +28,7 @@ def get_user(id):
 @app.route('/users/<id>', methods=['DELETE'])
 def delete_user(id):
     return users.delete_user(id)
+
+@app.route('/auth', methods=['POST'])
+def auth():
+    return helper.auth()

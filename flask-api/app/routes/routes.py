@@ -7,7 +7,7 @@ from flask import jsonify, request
 @app.route("/", methods=["GET"])
 @helper.token_required
 def root():
-    return jsonify({"message": "GET Success"})
+    return jsonify({"message": "Test message"})
 
 
 @app.route("/users/<id>", methods=["GET", "DELETE", "PUT"])

@@ -14,7 +14,8 @@ def token_required(f):
         if not token:
             return jsonify({"message": "Token não encontrado", "data": []}), 401
         try:
-            data = jwt.decode(token, app.config["SECRET_KEY"])
+            data = jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
+            print('>>', data)
             current_user = user_by_username(username=data["username"])
         except:
             return jsonify({"message": "Token expirado ou inválido", "data": []}), 401

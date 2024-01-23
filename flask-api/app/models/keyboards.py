@@ -17,10 +17,10 @@ class Keyboards(db.Model):
         self.price = price
 
 
-class KeyboardSchema(ma.Schema):
+class KeyboardsSchema(ma.Schema):
     class Meta:
-        field = {"id", "brand", "model", "color", "price", "created_on"}
+        fields = ("id", "brand", "model", "color", "price", "created_on")
 
 
-keyboard_schema = KeyboardSchema()
-keyboards_schema = KeyboardSchema(many=True)
+keyboard_schema = KeyboardsSchema()
+keyboards_schema = KeyboardsSchema(many=True)

@@ -78,10 +78,13 @@ def update_keyboard(id):
     if not keyboard:
         return jsonify({"error": "Registro não existe", "data": {}})
 
-    req_json = request.json
-
     try:
-        result = update(keyboard, req_json)
+        keyboard.brand = request.json["brand"]
+        keyboard.model = request.json["model"]
+        keyboard.color = request.json["color"]
+        keyboard.price = request.json["price"]
+
+        result = update(keyboard)
         if result:
             return jsonify({"message": "Atualizado com sucesso", "data": result}), 201
     except Exception as e:

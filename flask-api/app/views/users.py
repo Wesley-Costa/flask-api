@@ -30,17 +30,21 @@ def post_user():
 
 
 def update_user(id):
-    req_json = request.json
-
     user = Users.query.get(id)
 
     if not user:
         return jsonify(
-            {"message": f"Usuário: {req_json['username']} não existe", "data": {}}
+            {"message": "Usuário não existe", "data": {}}
         )
 
     try:
-        result = update(user, req_json)
+        user.username = request.json["username"]
+        user.name = request.json["name"]
+        user.email = request.json["email"]
+        password = generate_password_hash(request.json["password"])
+        user.password = password
+
+        result = update(user)
         if result:
             return jsonify({"message": "Atualizado com sucesso", "data": result}), 201
     except Exception as e:

@@ -23,13 +23,8 @@ def delete(keyboard: Keyboards):
         raise e
 
 
-def update(keyboard: Keyboards, request):
+def update(keyboard: Keyboards):
     try:
-        keyboard.brand = request["brand"]
-        keyboard.model = request["model"]
-        keyboard.color = request["color"]
-        keyboard.price = request["price"]
-
         db.session.commit()
         return keyboard_schema.dump(keyboard)
     except Exception as e:

@@ -24,12 +24,8 @@ def delete(user: Users):
         raise e
 
 
-def update(user: Users, request):
+def update(user: Users):
     try:
-        user.username = request["username"]
-        user.password = generate_password_hash(request["password"])
-        user.name = request["name"]
-        user.email = request["email"]
 
         db.session.commit()
         return user_schema.dump(user)

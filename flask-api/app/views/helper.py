@@ -2,7 +2,7 @@ import datetime
 from functools import wraps
 from app import app
 from flask import request, jsonify
-from .users import user_by_username
+from ..repository.users_repository import user_by_username
 import jwt
 from werkzeug.security import check_password_hash
 
@@ -14,7 +14,7 @@ def token_required(f):
         if not token:
             return jsonify({"message": "Token não encontrado", "data": []}), 401
         try:
-            data = jwt.decode(token, app.config["SECRET_KEY"])
+            data = jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
             current_user = user_by_username(username=data["username"])
         except:
             return jsonify({"message": "Token expirado ou inválido", "data": []}), 401

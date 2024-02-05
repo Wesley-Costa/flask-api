@@ -1,8 +1,8 @@
 from werkzeug.security import generate_password_hash
-from app import db
 from flask import request, jsonify
-from ..models.users import Users, user_schema, users_schema
-from ..repository.users_repository import save, delete, update
+from models.users import Users, user_schema, users_schema
+from application import db
+from repository.users_repository import save, delete, update
 
 
 def post_user():
@@ -15,13 +15,13 @@ def post_user():
     try:
         user = Users(username, pass_hash, name, email)
         result = save(user)
-        return jsonify({"message": "Registrado com sucesso", "data": result}), 201
+        return jsonify({"message": "Successfully registered", "data": result}), 201
     except Exception as e:
         db.session.rollback()
         return (
             jsonify(
                 {
-                    "error": f"Não foi possível criar. Um erro ocorreu: {str(e)}",
+                    "error": f"Unable to create. An error has occurred: {str(e)}",
                     "data": {},
                 }
             ),
@@ -34,7 +34,7 @@ def update_user(id):
 
     if not user:
         return jsonify(
-            {"message": "Usuário não existe", "data": {}}
+            {"message": "User does not exist", "data": {}}, 404
         )
 
     try:
@@ -46,12 +46,12 @@ def update_user(id):
 
         result = update(user)
         if result:
-            return jsonify({"message": "Atualizado com sucesso", "data": result}), 201
+            return jsonify({"message": "Updated successfully", "data": result}), 201
     except Exception as e:
         return (
             jsonify(
                 {
-                    "message": f"Não foi possível atualizar. Um erro ocorreu: {str(e)}",
+                    "message": f"Unable to update. An error has occurred: {str(e)}",
                     "data": {},
                 }
             ),
@@ -63,34 +63,34 @@ def get_users():
     users = Users.query.all()
     if users:
         result = users_schema.dump(users)
-        return jsonify({"message": "Dados obtidos com sucesso", "data": result}), 201
+        return jsonify({"message": "Sucessfully Fetched", "data": result}), 201
 
-    return jsonify({"error": "Não foram encontrados registros", "data": {}}), 401
+    return jsonify({"message": "No records found", "data": {}}), 401
 
 
 def get_user(id):
     user = Users.query.get(id)
     if user:
         result = user_schema.dump(user)
-        return jsonify({"message": "Dados obtidos com sucesso", "data": result}), 201
+        return jsonify({"message": "Sucessfully Fetched", "data": result}), 201
 
-    return jsonify({"error": "Não foram encontrados registros", "data": {}}), 404
+    return jsonify({"error": "No records found", "data": {}}), 404
 
 
 def delete_user(id):
     user = Users.query.get(id)
     if not user:
-        return jsonify({"error": "Não foram encontrados registros", "data": {}}), 404
+        return jsonify({"error": "No records found", "data": {}}), 404
 
     try:
         result = delete(user)
         if result:
-            return jsonify({"message": "Excluido com sucesso", "data": result}), 201
+            return jsonify({"message": "Sucessfully delete", "data": result}), 201
     except Exception as e:
         return (
             jsonify(
                 {
-                    "error": f"Não foi possível excluir o registro. Um erro ocorreu: {str(e)}",
+                    "message": f"Unable to delete record. An error has occurred: {str(e)}",
                     "data": {},
                 }
             ),

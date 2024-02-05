@@ -1,6 +1,6 @@
 from werkzeug.security import generate_password_hash
-from app import db
-from ..models.users import Users, user_schema, users_schema
+from models.users import Users, user_schema, users_schema
+from application import db
 from flask import request
 
 

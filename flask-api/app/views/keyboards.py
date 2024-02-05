@@ -1,29 +1,28 @@
-from app import db
 from flask import request, jsonify
-from ..models.keyboards import Keyboards, keyboard_schema, keyboards_schema
-from ..repository.keyboards_repository import save, delete, update
+from models.keyboards import Keyboards, keyboard_schema, keyboards_schema
+from application import db
+from repository.keyboards_repository import save, delete, update
 
 
 def post_keyboard():
-    req_json = request.json
     brand = request.json.get("brand", False)
     model = request.json.get("model", False)
     color = request.json.get("color", False)
     price = request.json.get("price", False)
 
     if not brand or not model or not color or not price:
-        return jsonify({"error": "Preencha os dados corretamente."}), 400
+        return jsonify({"error": "Fill in the data correctly."}), 404
 
     keyboard = Keyboards(brand, model, color, price)
     try:
-        result = save(keyboard, req_json)
+        result = save(keyboard)
         if result:
-            return jsonify({"message": "Registrado com sucesso", "data": result}), 201
+            return jsonify({"message": "Successfully registered", "data": result}), 201
     except Exception as e:
         return (
             jsonify(
                 {
-                    "message": f"Não foi possível criar. Erro: {str(e)}",
+                    "message": f"Unable to create. An error has occurred: {str(e)}",
                     "data": {},
                 }
             ),
@@ -35,9 +34,9 @@ def get_keyboards():
     keyboards = Keyboards.query.all()
     if keyboards:
         result = keyboards_schema.dump(keyboards)
-        return jsonify({"message": "Dados obtidos com sucesso", "data": result}), 201
+        return jsonify({"message": "Sucessfully Fetched", "data": result}), 201
 
-    return jsonify({"error": "Não foram encontrados registros", "data": {}}), 404
+    return jsonify({"message": "No records found", "data": {}}), 404
 
 
 def get_keyboard(id):
@@ -45,26 +44,25 @@ def get_keyboard(id):
 
     if keyboard:
         result = keyboard_schema.dump(keyboard)
-        return jsonify({"message": "Dados obtidos com sucesso", "data": result}), 201
-    return jsonify({"error": "Não foram encontrados registros", "data": {}}), 404
+        return jsonify({"message": "Sucessfully Fetched", "data": result}), 201
+    return jsonify({"message": "No records found", "data": {}}), 404
 
 
 def delete_keyboard(id):
     keyboard = Keyboards.query.get(id)
 
     if not keyboard:
-        return jsonify({"error": "Preencha os dados corretamente."}), 400
+        return jsonify({"error": "No records found", "data": {}}), 404
 
     try:
         result = delete(keyboard)
-
         if result:
-            return jsonify({"message": "Excluido com sucesso", "data": result}), 201
+            return jsonify({"message": "Sucessfully delete", "data": result}), 201
     except Exception as e:
         return (
             jsonify(
                 {
-                    "error": f"Não foi possível excluir o registro. Um erro ocorreu: {str(e)}",
+                    "message": f"Unable to delete record. An error has occurred: {str(e)}",
                     "data": {},
                 }
             ),
@@ -76,7 +74,7 @@ def update_keyboard(id):
     keyboard = Keyboards.query.get(id)
 
     if not keyboard:
-        return jsonify({"error": "Registro não existe", "data": {}})
+        return (jsonify({"message": "User does not exist", "data": {}}), 404)
 
     try:
         keyboard.brand = request.json["brand"]
@@ -86,13 +84,13 @@ def update_keyboard(id):
 
         result = update(keyboard)
         if result:
-            return jsonify({"message": "Atualizado com sucesso", "data": result}), 201
+            return jsonify({"message": "Updated successfully", "data": result}), 201
     except Exception as e:
         db.session.rollback()
         return (
             jsonify(
                 {
-                    "error": f"Não foi possível atualizar. Um erro ocorreu: {str(e)}",
+                    "message": f"Unable to update. An error has occurred: {str(e)}",
                     "data": {},
                 }
             ),

@@ -1,5 +1,5 @@
 import datetime
-from app import db, ma
+from application import db, ma
 
 
 class Keyboards(db.Model):

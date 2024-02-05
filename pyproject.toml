@@ -13,6 +13,7 @@ marshmallow-sqlalchemy = "^0.30.0"
 flask-marshmallow = "^1.1.0"
 mysqlclient = "^2.2.1"
 pyjwt = "^2.8.0"
+pytest-cov = "^4.1.0"
 
 
 [build-system]

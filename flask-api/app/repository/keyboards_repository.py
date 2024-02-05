@@ -1,5 +1,6 @@
-from ..models.keyboards import Keyboards, keyboard_schema, keyboards_schema
-from app import db
+from models.keyboards import Keyboards, keyboard_schema, keyboards_schema
+from application import db
+from flask import request
 
 
 def save(keyboard: Keyboards):
@@ -19,7 +20,7 @@ def delete(keyboard: Keyboards):
         db.session.commit()
         return keyboard_schema.dump(keyboard)
     except Exception as e:
-        db.session.rollback
+        db.session.rollback()
         raise e
 
 

@@ -1,10 +1,54 @@
 import datetime
 from functools import wraps
-from app import app
+from flask import current_app
 from flask import request, jsonify
-from ..repository.users_repository import user_by_username
+from repository.users_repository import user_by_username
 import jwt
 from werkzeug.security import check_password_hash
+
+
+def auth():
+    auth = request.get_json(force=True)
+    if not auth or not auth["username"] or not auth["password"]:
+        return (
+            jsonify(
+                {
+                    "message": "could not verify",
+                    "WWW-Authenticate": 'Basic auth="Login required"',
+                }
+            ),
+            401,
+        )
+
+    user = user_by_username(auth["username"])
+    if not user:
+        return jsonify({"message": "user not found", "data": []}), 401
+
+    if user and check_password_hash(user.password, str(auth["password"])):
+        token = jwt.encode(
+            {
+                "username": user.username,
+                "exp": datetime.datetime.now() + datetime.timedelta(hours=12),
+            },
+            current_app.config["SECRET_KEY"],
+        )
+
+        return jsonify(
+            {
+                "message": "Validated successfully",
+                "token": token,
+                "exp": datetime.datetime.now() + datetime.timedelta(hours=12),
+            }
+        )
+    return (
+        jsonify(
+            {
+                "message": "could not verify you user",
+                "WWW-Authenticate": 'Basic auth="Login required"',
+            }
+        ),
+        401,
+    )
 
 
 def token_required(f):
@@ -12,56 +56,15 @@ def token_required(f):
     def decorated(*args, **kwargs):
         token = request.args.get("token")
         if not token:
-            return jsonify({"message": "Token não encontrado", "data": []}), 401
+            return jsonify({"message": "token is missing", "data": {}}), 401
+
         try:
-            data = jwt.decode(token, app.config["SECRET_KEY"], algorithms=["HS256"])
+            data = jwt.decode(
+                token, current_app.config["SECRET_KEY"], algorithms=["HS256"]
+            )
             current_user = user_by_username(username=data["username"])
-        except:
-            return jsonify({"message": "Token expirado ou inválido", "data": []}), 401
+        except Exception as ex:
+            return jsonify({"message": "token is invalid or expired", "data": {}}), 401
         return f(current_user, *args, **kwargs)
 
     return decorated
-
-
-# Gerando token com base na Secret key do app e definindo expiração com 'exp'
-def auth():
-    auth = request.authorization
-    if not auth or not auth.username or not auth.password:
-        return (
-            jsonify(
-                {
-                    "message": "Não foi possível verificar",
-                    "WWW-Authenticate": 'Basic auth="Login required"',
-                }
-            ),
-            401,
-        )
-    user = user_by_username(auth.username)
-    if not user:
-        return jsonify({"message": "Usuário não encontrado", "data": []}), 401
-
-    if user and check_password_hash(user.password, auth.password):
-        token = jwt.encode(
-            {
-                "username": user.username,
-                "exp": datetime.datetime.now() + datetime.timedelta(hours=12),
-            },
-            app.config["SECRET_KEY"],
-        )
-        return jsonify(
-            {
-                "message": "Validado com sucesso",
-                "token": token,
-                "exp": datetime.datetime.now() + datetime.timedelta(hours=12),
-            }
-        )
-
-    return (
-        jsonify(
-            {
-                "message": "Não é possível verificar",
-                "WWW-Authenticate": 'Basic auth="Login required"',
-            }
-        ),
-        401,
-    )

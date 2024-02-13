@@ -72,3 +72,28 @@ def test_delete_one_user(client, create_users_for_test):
 
     assert response.status_code == 201
     assert response_data == expected
+
+
+def test_update_user(client, create_users_for_test):
+    data = {
+        "email": "UsuárioTeste@Teste.com",
+        "name": "Usuário Teste",
+        "id": 1,
+        "password": "12354567",
+        "username": "UsuárioTeste2",
+    }
+
+    expected = {"data": data, "message": "Updated successfully"}
+
+    response = client.put("/users/1", json=data)
+    response_data = json.loads(response.text)
+
+    print(response_data)
+
+    del response_data["data"]["created_on"] 
+    del response_data["data"]["password"]
+    del expected["data"]["password"]
+
+    assert response.status_code == 201
+    assert response_data == expected
+
